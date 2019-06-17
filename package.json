@@ -1,0 +1,14 @@
+{
+    "name": "stateful-terminal",
+    "version": "1.0.0",
+    "description": "Stateful, declarative & predictive library to build minimal terminal UIs",
+    "main": "dist/package/index.js",
+    "files": ["dist/package/**/*"],
+    "author": "Devansh Jethmalani",
+    "license": "MIT",
+    "dependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/devanshj/stateful-terminal.git"
+    }
+}

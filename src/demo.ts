@@ -1,4 +1,4 @@
-import Terminal from "./src";
+import Terminal from "./package";
 import readline from "readline";
 
 class App {
