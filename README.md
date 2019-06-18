@@ -1,4 +1,4 @@
-# stateful-terminal
+# staerm
 
 ## Principles
 

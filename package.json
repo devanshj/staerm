@@ -1,5 +1,5 @@
 {
-    "name": "stateful-terminal",
+    "name": "staerm",
     "version": "1.0.0",
     "description": "Stateful, declarative & predictive library to build minimal terminal UIs",
     "main": "dist/package/index.js",
