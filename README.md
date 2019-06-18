@@ -1,5 +1,7 @@
 # staerm
 
+Stateful, declarative & predictive library to build reactive terminal UIs.
+
 ## Principles
 
 1. The state of terminal at any given point can be represented by a simple object with the type &ndash;
