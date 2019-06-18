@@ -1,6 +1,6 @@
 {
     "name": "staerm",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "Stateful, declarative & predictive library to build minimal terminal UIs",
     "main": "dist/package/index.js",
     "files": ["dist/package/**/*"],

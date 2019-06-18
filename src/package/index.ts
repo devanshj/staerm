@@ -203,7 +203,13 @@ export class ScreenText {
         return (
             x + 
             this.value
-            .split(/(?<=\n)/)
+            /* .split(/(?<=\n)/) lookbehind is not transpilable xD */
+            .split("\n")
+            .flatMap((x, i, xs) => 
+                x === "" && i === xs.length - 1
+                    ? []
+                    : [x + "\n"]
+            )
             .slice(0, y)
             .reduce((a, s) => a + s.length, 0)
         )
