@@ -1,4 +1,4 @@
-import Terminal from "./package";
+import Terminal from "../package";
 import readline from "readline";
 
 class App {
@@ -33,7 +33,9 @@ class App {
         return (
             `a = ${this.a}\n` +
             `b = ${this.b}\n` +
-            `a + b = ${this.c}`
+            (this.c
+                ? `a + b = ${this.c}`
+                : "")
         );
     }
 
