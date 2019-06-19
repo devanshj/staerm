@@ -15,7 +15,7 @@ Stateful, declarative & predictive library to build reactive terminal UIs.
               , y: number
               }
           , caretOffset: number
-          , value
+          , value: string
           }
     }
     ```
