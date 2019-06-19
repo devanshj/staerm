@@ -1,14 +1,13 @@
 {
     "name": "staerm",
-    "version": "1.0.2",
-    "description": "Stateful, declarative & predictive library to build minimal terminal UIs",
-    "main": "dist/package/index.js",
-    "files": ["dist/package/**/*"],
+    "version": "2.0.1",
+    "description": "Stateful, declarative & predictive library to build reactive terminal UIs",
+    "main": "index.js",
     "author": "Devansh Jethmalani",
     "license": "MIT",
     "dependencies": {},
     "repository": {
         "type": "git",
-        "url": "https://github.com/devanshj/stateful-terminal.git"
+        "url": "https://github.com/devanshj/staerm.git"
     }
 }

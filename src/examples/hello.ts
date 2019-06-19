@@ -1,19 +1,22 @@
-import { setup } from "./node-recipe";
+import { terminal } from "../package/";
+import { emitKeypressEvents } from "readline";
+import { withNodeProcess } from "../package/recipes";
 
-// using a little function so that you don't get distracted with initial setup
-const { onKeypress, terminal } = setup();
+process.stdin.setRawMode!(true);
+emitKeypressEvents(process.stdin);
 
-// listen to every keypress to update the view
-onKeypress(() => {
+const { state, io } = withNodeProcess(terminal(), process);
 
+const update = () => {
+    
     // get name from text, remember `state.text` is the source of truth? ;)
     const getName = () => {
-        let match = terminal.state.text.match(/What is your name\? (.*)/);
+        let match = state.get().text.match(/What is your name\? (.*)/);
         return match ? match[1] : "";
     }
     let name = getName();
 
-    terminal.state = {
+    state.set(state => ({
 
         // set the text
         // much declarative huh? xD
@@ -24,7 +27,7 @@ onKeypress(() => {
                 : ""),
 
         input:
-            terminal.state.input === null
+            state.input === null
                 // if there is no input being taken (which is the initial state)
                 // take input at the specified position
                 ? {
@@ -33,12 +36,14 @@ onKeypress(() => {
                     value: ""
                 }
                 // else keep it as it is
-                : terminal.state.input
+                : state.input
+    }))
 
-        /* 
-        The key thing here to notice is we are not getting the `name` from input.
-        `state.input` is only to specify the current area of input (try pressing HOME & END keys ;P)
-        `state.text` is name's source of truth even though you might feel `state.input` should be the source of truth
-        */
-    }
-})
+    /* 
+    The key thing here to notice is we are not getting the `name` from input.
+    `state.input` is only to specify the current area of input (try pressing HOME & END keys ;P)
+    `state.text` is name's source of truth even though you might feel `state.input` should be the source of truth
+    */
+}
+io.keypress.listen(update)
+update();
