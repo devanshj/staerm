@@ -8,7 +8,8 @@ export type Terminal = {
             stateOrReducer:
                 | TerminalState
                 | ((state: DeepReadonly<TerminalState>) => TerminalState)
-        ) => void
+        ) => void,
+        listen: (listener: TerminalStateListener) => void
     },
     io: {
         keypress: {
@@ -54,6 +55,7 @@ export type KeypressData = {
 }
 export type KeypressListener = (data: KeypressData) => void;
 export type StdoutListener = (data: string) => void;
+export type TerminalStateListener = (state: TerminalState) => void;
 export type KeypressMiddleware = (data: KeypressData, emit: (data: KeypressData) => void) => void;
 
 

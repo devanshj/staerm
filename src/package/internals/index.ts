@@ -1,6 +1,6 @@
 import { bindMethod, ansiEscapes } from "./utils";
 import { ScreenText, InputField } from "./helpers";
-import { Terminal, KeypressListener, StdoutListener, KeypressMiddleware, TerminalState, InternalTerminalState } from "./types";
+import { Terminal, KeypressListener, StdoutListener, KeypressMiddleware, TerminalState, InternalTerminalState, TerminalStateListener } from "./types";
 import { writeFile } from "fs";
 
 
@@ -18,6 +18,7 @@ export const terminal = (): Terminal => {
     let listeners = {
         keypress: [] as KeypressListener[],
         stdout: [] as StdoutListener[],
+        state: [] as TerminalStateListener[]
     }
 
     let _middleware: KeypressMiddleware = (data, emit) => emit(data);
@@ -53,6 +54,10 @@ export const terminal = (): Terminal => {
             toInternalState(state)
         );
         internalRender();
+
+        listeners.state.forEach(
+            emitState => emitState(toExternalState(internalState))
+        )
     }
     
     /* ---- */
@@ -60,22 +65,13 @@ export const terminal = (): Terminal => {
 
     const terminal: Terminal = {
         state: {
-            get: () => Object.freeze({
-                text: internalState.text.value,
-                input:
-                    internalState.inputField === null
-                        ? null
-                        : (
-                            ({ startPos: position, caretOffset, value }) => 
-                            Object.freeze({ position, caretOffset, value })
-                        )(internalState.inputField)
-            }),
-            set: stateOrReducer =>
-                internalOnState(
-                    typeof stateOrReducer === "function"
-                        ? stateOrReducer(terminal.state.get())
-                        : stateOrReducer
-                )
+            get: () => toExternalState(internalState),
+            set: stateOrReducer => internalOnState(
+                typeof stateOrReducer === "function"
+                    ? stateOrReducer(terminal.state.get())
+                    : stateOrReducer
+            ),
+            listen: bindMethod(listeners.state, "push")
         },
         io: {
             keypress: {
@@ -113,6 +109,18 @@ const toInternalState =
 
         return { text, inputField };
     }
+
+const toExternalState = (internalState: InternalTerminalState): TerminalState =>
+    Object.freeze({
+        text: internalState.text.value,
+        input:
+            internalState.inputField === null
+                ? null
+                : (
+                    ({ startPos: position, caretOffset, value }) => 
+                    Object.freeze({ position, caretOffset, value })
+                )(internalState.inputField)
+    })
 
 const toStdout =
     (state: InternalTerminalState): string =>
