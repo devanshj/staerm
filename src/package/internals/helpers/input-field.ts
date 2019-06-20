@@ -1,5 +1,5 @@
 import { ScreenText } from "./screen-text";
-import { KeypressData } from "./../types";
+import { KeypressData } from "../types";
 import { toKeyname } from "../utils";
 
 export class InputField {

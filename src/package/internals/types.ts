@@ -1,10 +1,5 @@
 import { DeepReadonly } from "./utils";
-import { ScreenText, InputField } from "./internal-helpers/";
-
-/*
-TDD - Type Driven Development FTW xD
-(https://mobile.twitter.com/ken_wheeler/status/1138962476844949505)
-*/
+import { ScreenText, InputField } from "./helpers";
 
 export type Terminal = {
     state: {

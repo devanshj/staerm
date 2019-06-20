@@ -1,6 +1,6 @@
 {
     "name": "staerm",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "Stateful, declarative & predictive library to build reactive terminal UIs",
     "main": "index.js",
     "author": "Devansh Jethmalani",

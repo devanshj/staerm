@@ -1,7 +1,7 @@
 import readline, { emitKeypressEvents } from "readline";
-import { terminal } from "../package/";
-import { KeypressData, KeypressListener, Terminal, KeypressMiddleware } from "../package/types";
-import { withNodeProcess } from "../package/recipes";
+import { terminal } from "../package/internals";
+import { KeypressData, KeypressListener, Terminal, KeypressMiddleware } from "../package/internals/types";
+import { withNodeProcess } from "../package/internals/recipes";
 
 class App {
 

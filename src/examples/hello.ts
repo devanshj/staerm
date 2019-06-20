@@ -1,6 +1,6 @@
-import { terminal } from "../package/";
+import { terminal } from "../package/internals";
 import { emitKeypressEvents } from "readline";
-import { withNodeProcess } from "../package/recipes";
+import { withNodeProcess } from "../package/internals/recipes";
 
 process.stdin.setRawMode!(true);
 emitKeypressEvents(process.stdin);
