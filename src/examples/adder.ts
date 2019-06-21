@@ -1,122 +1,85 @@
-import readline, { emitKeypressEvents } from "readline";
-import { terminal } from "../package/internals";
-import { KeypressData, KeypressListener, Terminal, KeypressMiddleware } from "../package/internals/types";
-import { withNodeProcess } from "../package/internals/recipes";
-
-class App {
-
-    terminal: Terminal;
-    constructor(terminal: Terminal){
-        this.terminal = terminal;
-        this.terminal.io.keypress.middleware.set(this.middleware);
-        this.terminal.io.keypress.listen(this.onKeypress);
-        this.render();
-    }
-
-    get a() {
-        let matches = this.terminal.state.get().text.match(/a = (.*)/);
-        if (matches) return matches[1] || "";
-        return "";
-    }
-
-    get b() {
-        let matches = this.terminal.state.get().text.match(/b = (.*)/);
-        if (matches) return matches[1] || "";
-        return "";
-    }
-
-    get c() {
-        return (
-            this.a === "" || this.b === ""
-               ? ""
-                : Number(this.a) + Number(this.b)
-        )
-    }
-
-    middleware: KeypressMiddleware = (data, emit) => {
-        let { sequence } = data;
-
-        if (
-            Array.from(
-                { length: 10 },
-                (_, i) => i.toString()
-            ).includes(sequence) ||
-            JSON.stringify(sequence)[1] === "\\"
-        ) {
-            emit(data);
-        }
-    }
-
-    currentInput: "a" | "b" = "a"
-    nextRender = {
-        shouldResetCaretOffset: false
-    }
-    
-
-    get view() {
-        return (
-            `a = ${this.a}\n` +
-            `b = ${this.b}\n` +
-            (this.c
-                ? `a + b = ${this.c}`
-                : "")
-        );
-    }
-
-    
-    onKeypress: KeypressListener = ({ sequence }) => {
-        if (sequence === "\u001b[A" || sequence === "\u001b[B" || sequence === "\r") {
-            this.currentInput = 
-                this.currentInput === "a"
-                    ? "b"
-                    : "a";
-            
-            this.nextRender.shouldResetCaretOffset = true;
-        }
-
-        this.render();
-        this.nextRender.shouldResetCaretOffset = false;
-    }
-
-    render() {
-        let { caretOffset: currentCaretOffset } = this.terminal.state.get().input || { caretOffset: 0 };
-        let inputValue = this.currentInput === "a" ? this.a : this.b;
-        let inputY = this.currentInput === "a" ? 0 : 1;
-
-        this.terminal.state.set({
-            text: this.view,
-            input: {
-                position: {
-                    x: 4,
-                    y: inputY
-                },
-                caretOffset:
-                    this.nextRender.shouldResetCaretOffset
-                        ? inputValue.length
-                        : currentCaretOffset,
-                value: inputValue
-            }
-        })
-    }
-}
+import { terminal, withNodeProcess, r, TerminalState } from "../package/";
+import { emitKeypressEvents } from "readline";
 
 process.stdin.setRawMode!(true);
 emitKeypressEvents(process.stdin);
-new App(withNodeProcess(terminal(), process));
+const { state, io } = withNodeProcess(terminal(), process);
 
+io.keypress.listen(key => {
+	
+	const getA = (text: string) => {
+		let match = text.match(/a = (.*)/);
+		return match ? match[1] : "";
+	}
 
+	const getB = (text: string) => {
+		let match = text.match(/b = (.*)/);
+		return match ? match[1] : "";
+	}
 
+	const getC = (text: string) => {
+		let a = getA(text);
+		let b = getB(text);
 
+		return (
+			a === "" || b === ""
+			   ? ""
+			   : Number(a) + Number(b)
+		)
+	}
+	
+	let { sequence } = key;
+	state.reduce(state => 
+		r.pipe(
+			(!!sequence.match(/\d/) ||
+			JSON.stringify(sequence)[1] === "\\")
+				? r.typing
+				: x => x,
+			state => {
+				let { text, input } = state;
+				let a = getA(text);
+				let b = getB(text);
+				let c = getC(text);
 
+				return ({		
+					text: 
+						`a = ${a}\n` +
+						`b = ${b}\n` +
+						(c !== "" ? `c = ${c}` : ""),
+			
+					input:
+						input === null
+							? {
+								position: {
+									y: 0,
+									x: 4
+								},
+								caretOffset: 0,
+								length: 0
+							} :
 
+						sequence === "\u001b[A" ||
+						sequence === "\u001b[B" ||
+						sequence === "\r"
+							? (y => ({
+								position: {
+									y,
+									x: 4
+								},
+								caretOffset: (y === 0 ? a : b).length,
+								length: (y === 0 ? a : b).length
+							}))(input.position.y === 0 ? 1 : 0) :
 
+						input
+				})
+			}
+		)(state, key)
+	);
+});
 
-
-
-
-
-
-
-
-
-
+io.keypress.emit({
+	sequence: "",
+	ctrl: false,
+	shift: false,
+	meta: false
+});
