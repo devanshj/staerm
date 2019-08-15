@@ -32,7 +32,7 @@ export const ansiEscapes = {
 				: "\u001B[" + y + "B"),
 
 	clearScreen:
-		"\u001Bc",
+		"\u001B[2J" + "\u001B[1;1H",
 		
 	cursorTo:
 		(x: number, y: number) =>
