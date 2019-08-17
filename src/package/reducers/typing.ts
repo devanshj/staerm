@@ -57,5 +57,5 @@ export const typing = ({ text, input }: TerminalState, { sequence }: KeypressDat
 		})
 	)({
 		key: toKeyname(sequence),
-		isEscapeChar: /[^a-zA-Z0-9]/.test(sequence)
+		isEscapeChar: /[^a-zA-Z0-9 ]/.test(sequence)
 	});
