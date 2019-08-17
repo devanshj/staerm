@@ -6,7 +6,7 @@ export const toKeyname = (sequence: string) =>
 	sequence === "\u001b[C"
 		? "RIGHT" :
 
-	sequence === "\b"
+	sequence === "\b" || sequence === "\u007f" // \u007f for linux
 		? "BACKSPACE" :
 
 	sequence === "\u001b[3~"
