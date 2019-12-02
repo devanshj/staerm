@@ -21,13 +21,13 @@ export const withXterm = (terminal: Terminal, xterm: XtermTerminal): Terminal =>
 	return terminal;
 }
 
-export const withNodeProcess = (terminal: Terminal, process: NodeJsProcess): Terminal => {
+export const withNodeProcess = (terminal: Terminal, process: NodeJsProcess, exitOnCtrlC: boolean = true): Terminal => {
 	terminal.io.stdout.listen(
 		bindMethod(process.stdout, "write")
 	)
 
 	process.stdin.on("keypress", (_, data) => {
-		if (data.ctrl && data.sequence == "\u0003")
+		if (exitOnCtrlC && data.ctrl && data.sequence == "\u0003")
 			process.exit();
 		
 		terminal.io.keypress.emit(data);
