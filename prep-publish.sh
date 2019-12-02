@@ -3,6 +3,8 @@ if [ "$shouldContinue" != "y" ]; then
 	exit
 fi
 
+rm -r dist
+rm -r distribution
 tsc
 cp -r dist/package/ distribution/
 cp LICENSE distribution/LICENSE
