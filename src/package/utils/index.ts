@@ -1,25 +1,25 @@
-export const toKeyname = (sequence: string) => 
+export const toKeyname = (sequence: string) =>
+	use({
+		"\u001B[A": "UP",
+		"\u001B[B": "DOWN",
+		"\u001b[D": "LEFT",
+		"\u001b[C": "RIGHT",
+		"\b": "BACKSPACE",
+		"\u007f": "BACKSPACE",
+		"\u001b[3~": "DELETE",
+		"\u001b[1~": "HOME",
+		"\u001b[H": "END",
+		"\r": "ENTER"
+	} as const)
+	.as(sequences =>
+		isIn(sequences, sequence)
+			? sequences[sequence]
+			: undefined
+	);
 
-	sequence === "\u001b[D"
-		? "LEFT" :
-	
-	sequence === "\u001b[C"
-		? "RIGHT" :
-
-	sequence === "\b" || sequence === "\u007f" // \u007f for linux
-		? "BACKSPACE" :
-
-	sequence === "\u001b[3~"
-		? "DELETE" :
-
-	sequence === "\u001b[1~" || sequence === "\u001b[H" // \u001b[H for xterm.js
-		? "HOME" :
-
-	sequence === "\u001b[4~" || sequence === "\u001b[F" // \u001b[F for xterm.js
-		? "END" :
-
-	undefined;
-
+const isIn =
+	<O extends object>(o: O, k: keyof any): k is keyof O =>
+		k in o;
 
 export const ansiEscapes = {
 	cursorMove:
@@ -55,6 +55,10 @@ export const bindMethod =
 export const mergeFns =
 	<A extends any[]>(fns: ((...args: A) => any)[]) =>
 		(...args: A) => fns.forEach(fn => fn(...args));
+
+export const use =
+	<A extends any[]>(...a: A) =>
+		({ as: <R>(f: (...a: A) => R) => f(...a) });
 
 export type DeepReadonly<T> = Readonly<{
 	[K in keyof T]: Readonly<T[K]>

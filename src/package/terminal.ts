@@ -19,7 +19,7 @@ export const terminal = (): Terminal => {
 	const terminal: Terminal = {
 		state: {
 			get: () => currentState,
-			set: state => {
+			set: (state) => {
 				prevState = currentState;
 				currentState = state;
 
@@ -39,6 +39,20 @@ export const terminal = (): Terminal => {
 			stdout: {
 				listen: bindMethod(listeners.stdout, "push")
 			}
+		},
+		reduce: (reducer, initialState) => {
+			terminal.io.keypress.listen(key =>
+				terminal.state.reduce(state => reducer(state, key))
+			)
+			terminal.state.set(
+				initialState ||
+				reducer(currentState, {
+					sequence: "",
+					ctrl: false,
+					meta: false,
+					shift: false
+				})
+			);
 		}
 	};
 	return terminal;

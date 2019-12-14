@@ -15,7 +15,14 @@ export type Terminal = {
 		stdout: {
 			listen: (listener: StdoutListener) => void
 		}
-	}
+	},
+	reduce: (
+		reducer: (
+			state: TerminalState,
+			keypressData: KeypressData
+		) => TerminalState,
+		initialState?: TerminalState
+	) => void
 };
 
 export type TerminalState = {

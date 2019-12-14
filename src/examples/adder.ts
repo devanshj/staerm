@@ -1,85 +1,55 @@
-import { terminal, withNodeProcess, r, TerminalState } from "../package/";
+import { terminal, withNodeProcess, r, toKeyname } from "../package/";
 import { emitKeypressEvents } from "readline";
 
 process.stdin.setRawMode!(true);
 emitKeypressEvents(process.stdin);
-const { state, io } = withNodeProcess(terminal(), process);
 
-io.keypress.listen(key => {
-	
-	const getA = (text: string) => {
-		let match = text.match(/a = (.*)/);
-		return match ? match[1] : "";
-	}
+withNodeProcess(terminal(), process).reduce(
+	r.pipe(
+		(state, key) =>
+			(!!key.sequence.match(/\d/) ||
+			JSON.stringify(key.sequence)[1] === "\\")
+				? r.typing(state, key)
+				: state,
 
-	const getB = (text: string) => {
-		let match = text.match(/b = (.*)/);
-		return match ? match[1] : "";
-	}
+		({ text, input }, { sequence }) => {
 
-	const getC = (text: string) => {
-		let a = getA(text);
-		let b = getB(text);
+			let a = text.match(/a = (.*)/)?.[1] || "";
+			let b = text.match(/b = (.*)/)?.[1] || "";
+			let c = a !== "" && b !== "" ? a + b : "";
 
-		return (
-			a === "" || b === ""
-			   ? ""
-			   : Number(a) + Number(b)
-		)
-	}
-	
-	let { sequence } = key;
-	state.reduce(state => 
-		r.pipe(
-			(!!sequence.match(/\d/) ||
-			JSON.stringify(sequence)[1] === "\\")
-				? r.typing
-				: x => x,
-			state => {
-				let { text, input } = state;
-				let a = getA(text);
-				let b = getB(text);
-				let c = getC(text);
+			return ({		
+				text: 
+					`a = ${a}\n` +
+					`b = ${b}\n` +
+					(c !== "" ? `c = ${c}` : ""),
+		
+				input:
+					input === null
+						? {
+							position: {
+								y: 0,
+								x: 4
+							},
+							caretOffset: 0,
+							length: 0
+						} :
 
-				return ({		
-					text: 
-						`a = ${a}\n` +
-						`b = ${b}\n` +
-						(c !== "" ? `c = ${c}` : ""),
-			
-					input:
-						input === null
-							? {
-								position: {
-									y: 0,
-									x: 4
-								},
-								caretOffset: 0,
-								length: 0
-							} :
+					["UP", "DOWN", "ENTER"].includes(toKeyname(sequence) || "")
+						? use(input.position.y === 0 ? 1 : 0).as(y => ({
+							position: {
+								y,
+								x: 4
+							},
+							caretOffset: (y === 0 ? a : b).length,
+							length: (y === 0 ? a : b).length
+						})) :
 
-						sequence === "\u001b[A" ||
-						sequence === "\u001b[B" ||
-						sequence === "\r"
-							? (y => ({
-								position: {
-									y,
-									x: 4
-								},
-								caretOffset: (y === 0 ? a : b).length,
-								length: (y === 0 ? a : b).length
-							}))(input.position.y === 0 ? 1 : 0) :
+					input
+			})
+		}
+	)
+);
 
-						input
-				})
-			}
-		)(state, key)
-	);
-});
-
-io.keypress.emit({
-	sequence: "",
-	ctrl: false,
-	shift: false,
-	meta: false
-});
+const use = <A extends any[]>(...a: A) =>
+	({ as: <R>(f: (...a: A) => R) => f(...a) })
